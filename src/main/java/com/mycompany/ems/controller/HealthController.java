@@ -21,8 +21,9 @@ public class HealthController {
         Map<String, Object> response = Map.of(
             "status", "UP",
             "timestamp", LocalDateTime.now(),
-            "application", "Employee Management System",
-            "version", "1.0.0"
+            "application", "Enterprise Management System (EMS)",
+            "version", "1.0.0",
+            "modules", "auth, task, crm, hrm, analytics"
         );
         return ResponseEntity.ok(response);
     }

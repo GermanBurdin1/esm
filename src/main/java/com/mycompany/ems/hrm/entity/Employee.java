@@ -1,4 +1,4 @@
-package com.mycompany.ems.entity;
+package com.mycompany.ems.hrm.entity;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 import java.time.LocalDate;
 
 @Entity
-@Table(name = "employees", schema = "task")
+@Table(name = "employees", schema = "hrm")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor

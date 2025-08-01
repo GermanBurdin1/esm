@@ -1,4 +1,8 @@
-CREATE TABLE task.employees (
+-- Create HRM schema for employee management
+CREATE SCHEMA IF NOT EXISTS hrm;
+
+-- Create employees table in hrm schema
+CREATE TABLE hrm.employees (
     id SERIAL PRIMARY KEY,
     first_name VARCHAR(50) NOT NULL,
     last_name VARCHAR(50) NOT NULL,
