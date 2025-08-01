@@ -9,6 +9,7 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.util.List;
 
 /**
@@ -109,7 +110,7 @@ public class DataSeeder implements CommandLineRunner {
     private Board createBoardWithColumns(String name, String description, Long workspaceId) {
         Board board = new Board();
         board.setName(name);
-        board.setDescription(description);
+        // Board n'a pas de champ description, juste le nom
         board.setWorkspaceId(workspaceId);
         Board savedBoard = boardRepository.save(board);
 
@@ -177,7 +178,7 @@ public class DataSeeder implements CommandLineRunner {
         task.setAssigneeId(assigneeId);
         task.setPriority(priority);
         task.setPosition(position);
-        task.setDueDate(LocalDateTime.now().plusDays(7)); // Due dans 7 jours
+        task.setDueDate(LocalDate.now().plusDays(7)); // Due dans 7 jours
         return taskRepository.save(task);
     }
 

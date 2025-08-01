@@ -35,30 +35,38 @@ buildNumber.properties
 .mvn/timing.properties
 .mvn/wrapper/maven-wrapper.jar
 
-# Eclipse
-.metadata
-bin/
-tmp/
-*.tmp
-*.bak
-*.swp
-*~.nib
-local.properties
-.settings/
-.loadpath
-.recommenders
-
-# IntelliJ IDEA
+# IDE
 .idea/
 *.iws
 *.iml
 *.ipr
-
-# VS Code
 .vscode/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
 
 # Spring Boot
-spring-boot-*.jar
+/logs/
 
-# Environment variables
-.env
+# Frontend
+frontend/node_modules/
+frontend/dist/
+frontend/.angular/
+frontend/coverage/
+frontend/tmp/
+frontend/out-tsc/
+frontend/bazel-out/
+
+# Documentation files (temporary)
+*_SUMMARY.md
+START_TESTING.md
+QUICK_START.md
+SETUP_*.md
