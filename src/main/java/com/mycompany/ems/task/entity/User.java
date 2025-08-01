@@ -44,7 +44,7 @@ public class User {
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt = LocalDateTime.now();
 
-    // Связи
+    // Les liaisons (ici c'est les relations, lol)
     @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Workspace> ownedWorkspaces;
 

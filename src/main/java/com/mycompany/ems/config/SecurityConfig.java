@@ -4,45 +4,46 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.core.userdetails.User;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.provisioning.InMemoryUserDetailsManager;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.web.SecurityFilterChain;
 
+/**
+ * Конфигурация безопасности для разработки
+ * Отключает аутентификацию для всех endpoints чтобы можно было тестировать API
+ */
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
 
+    /**
+     * Конфигурация цепочки фильтров безопасности
+     * В режиме разработки разрешает доступ ко всем endpoints
+     * 
+     * @param http HttpSecurity объект для настройки
+     * @return SecurityFilterChain
+     * @throws Exception если произошла ошибка конфигурации
+     */
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
-            .csrf(csrf -> csrf.disable())
+            // On désactive CSRF pour les tests d'API
+            .csrf(AbstractHttpConfigurer::disable)
+            
+            // On autorise l'accès à tous les endpoints
             .authorizeHttpRequests(authz -> authz
-                .requestMatchers("/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
-                .requestMatchers("/api/public/**").permitAll()
-                .anyRequest().authenticated()
+                .requestMatchers("/api/**").permitAll()           // Tous les endpoints API
+                .requestMatchers("/swagger-ui/**").permitAll()    // Swagger UI
+                .requestMatchers("/v3/api-docs/**").permitAll()   // OpenAPI docs
+                .requestMatchers("/api-docs/**").permitAll()      // API docs
+                .anyRequest().permitAll()                         // Tous les autres requests
             )
-            .httpBasic();
-        
+            
+            // On désactive le formulaire de login
+            .formLogin(AbstractHttpConfigurer::disable)
+            
+            // On désactive l'authentification HTTP Basic
+            .httpBasic(AbstractHttpConfigurer::disable);
+
         return http.build();
-    }
-
-    @Bean
-    public UserDetailsService userDetailsService() {
-        UserDetails user = User.builder()
-            .username("admin")
-            .password(passwordEncoder().encode("password"))
-            .roles("ADMIN")
-            .build();
-
-        return new InMemoryUserDetailsManager(user);
-    }
-
-    @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
     }
 }

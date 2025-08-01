@@ -26,13 +26,13 @@ public class TaskLabel {
     @Column(name = "name", nullable = false)
     private String name;
 
-    @Column(name = "color", length = 7) // Для hex цветов типа #FF5733
+    @Column(name = "color", length = 7) // Pour les couleurs hex genre #FF5733
     private String color = "#808080";
 
     @Column(name = "board_id", nullable = false)
     private Long boardId;
 
-    // Связи
+    // Les liaisons (ici c'est les relations, lol)
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "board_id", insertable = false, updatable = false)
     private Board board;

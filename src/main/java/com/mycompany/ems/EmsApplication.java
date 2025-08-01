@@ -11,7 +11,9 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 @EnableJpaRepositories("com.mycompany.ems.task.repository")
 @ComponentScan(basePackages = {
     "com.mycompany.ems.task",
-    "com.mycompany.ems.common"
+    "com.mycompany.ems.common",
+    "com.mycompany.ems.config",
+    "com.mycompany.ems.controller"
 })
 public class EmsApplication {
     public static void main(String[] args) {

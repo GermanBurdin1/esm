@@ -33,7 +33,7 @@ public class Board {
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt = LocalDateTime.now();
 
-    // Связи
+    // Les liaisons (ici c'est les relations, lol)
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "workspace_id", insertable = false, updatable = false)
     private Workspace workspace;

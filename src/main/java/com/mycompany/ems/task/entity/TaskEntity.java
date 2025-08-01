@@ -51,7 +51,7 @@ public class TaskEntity {
     @Column(name = "priority", nullable = false)
     private Priority priority = Priority.MEDIUM;
 
-    // Связи
+    // Les liaisons (ici c'est les relations, lol)
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "column_id", insertable = false, updatable = false)
     private BoardColumn column;

@@ -23,7 +23,7 @@ public class TaskLabelRelation {
     @Column(name = "label_id", nullable = false)
     private Long labelId;
 
-    // Связи
+    // Les liaisons (ici c'est les relations, lol)
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "task_id", insertable = false, updatable = false)
     private TaskEntity task;
@@ -32,9 +32,9 @@ public class TaskLabelRelation {
     @JoinColumn(name = "label_id", insertable = false, updatable = false)
     private TaskLabel label;
 
-    // Составной ключ для уникальности пары task-label
+    // Clé composé pour l'unicité du pair task-label
     @Table(uniqueConstraints = @UniqueConstraint(columnNames = {"task_id", "label_id"}))
     public static class TaskLabelKey {
-        // Композитный ключ можно реализовать через @IdClass если нужно
+        // La clé composite peut être fait avec @IdClass si tu veux
     }
 }

@@ -23,7 +23,16 @@ public class HealthController {
             "timestamp", LocalDateTime.now(),
             "application", "Enterprise Management System (EMS)",
             "version", "1.0.0",
-            "modules", "auth, task, crm, hrm, analytics"
+            "modules", "auth, task, crm, hrm, analytics",
+            "api_endpoints", Map.of(
+                "users", "/api/users",
+                "workspaces", "/api/workspaces", 
+                "boards", "/api/boards",
+                "tasks", "/api/tasks",
+                "comments", "/api/comments",
+                "labels", "/api/labels",
+                "swagger", "/swagger-ui.html"
+            )
         );
         return ResponseEntity.ok(response);
     }

@@ -32,7 +32,7 @@ public class BoardColumn {
     @Column(name = "position", nullable = false)
     private Integer position = 0;
 
-    // Связи
+    // Les liaisons (ici c'est les relations, lol)
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "board_id", insertable = false, updatable = false)
     private Board board;
