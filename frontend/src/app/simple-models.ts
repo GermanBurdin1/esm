@@ -30,6 +30,8 @@ export interface BoardColumn {
   position: number;
 }
 
+export type TaskPriority = 'LOW' | 'MEDIUM' | 'HIGH';
+
 export interface Task {
   id?: number;
   title: string;
@@ -39,7 +41,17 @@ export interface Task {
   createdAt?: string;
   dueDate?: string;
   position: number;
-  priority: 'LOW' | 'MEDIUM' | 'HIGH';
+  priority: TaskPriority;
+}
+
+export interface CreateTaskRequest {
+  title: string;
+  description?: string;
+  columnId: number;
+  assigneeId?: number;
+  dueDate?: string;
+  position?: number;
+  priority?: TaskPriority;
 }
 
 export interface TaskComment {

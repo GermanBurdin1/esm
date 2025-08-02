@@ -5,6 +5,9 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { HttpClientModule } from '@angular/common/http';
 import { RouterModule } from '@angular/router';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatDialogModule } from '@angular/material/dialog';
+import { MatDatepickerModule } from '@angular/material/datepicker';
+import { MatNativeDateModule } from '@angular/material/core';
 
 import { routes } from './app/app.routes';
 
@@ -15,7 +18,9 @@ bootstrapApplication(AppComponent, {
       HttpClientModule,
       RouterModule.forRoot(routes),
       MatSnackBarModule,
-
+      MatDialogModule,
+      MatDatepickerModule,
+      MatNativeDateModule
     )
   ]
 }).catch(err => console.error(err));

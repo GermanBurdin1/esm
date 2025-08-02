@@ -2,25 +2,17 @@ import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { ApiService } from './api.service';
 import { 
-  Task
+  Task,
+  CreateTaskRequest,
+  TaskPriority
 } from '../simple-models';
-
-export interface CreateTaskRequest {
-  title: string;
-  description?: string;
-  columnId: number;
-  assigneeId?: number;
-  dueDate?: string;
-  priority?: 'LOW' | 'MEDIUM' | 'HIGH';
-  position?: number;
-}
 
 export interface UpdateTaskRequest {
   title?: string;
   description?: string;
   assigneeId?: number;
   dueDate?: string;
-  priority?: 'LOW' | 'MEDIUM' | 'HIGH';
+  priority?: TaskPriority;
 }
 
 export interface MoveTaskRequest {
