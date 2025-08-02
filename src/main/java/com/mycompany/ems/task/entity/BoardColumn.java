@@ -7,6 +7,7 @@ import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import java.util.List;
 
@@ -35,8 +36,10 @@ public class BoardColumn {
     // Les liaisons (ici c'est les relations, lol)
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "board_id", insertable = false, updatable = false)
+    @JsonIgnore
     private Board board;
 
     @OneToMany(mappedBy = "column", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JsonIgnore
     private List<TaskEntity> tasks;
 }

@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Profile;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
@@ -30,14 +31,26 @@ public class DataSeeder implements CommandLineRunner {
     private final TaskCommentRepository commentRepository;
     private final TaskLabelRepository labelRepository;
     private final TaskLabelRelationRepository labelRelationRepository;
+    private final PasswordEncoder passwordEncoder;
 
     @Override
     public void run(String... args) throws Exception {
-        if (userRepository.count() > 0) {
-            log.info("🔍 Données déjà présentes, seeder skippé");
+        if (userRepository.count() == 0) {
+            log.info("🌱 Début du seeding complet des données de test...");
+            seedAllData();
             return;
         }
+        
+        if (taskRepository.count() == 0) {
+            log.info("🌱 Utilisateurs présents mais pas de tâches. Création des tâches...");
+            seedTasksOnly();
+            return;
+        }
+        
+        log.info("🔍 Données déjà présentes, seeder skippé");
+    }
 
+    private void seedAllData() {
         log.info("🌱 Début du seeding des données de test...");
 
         // 1. Créer les utilisateurs
@@ -90,11 +103,105 @@ public class DataSeeder implements CommandLineRunner {
         log.info("🏥 Health Check: http://localhost:8080/api/public/health");
     }
 
+    private void seedTasksOnly() {
+        log.info("🌱 Création des tâches pour les utilisateurs existants...");
+
+        // Récupérer les utilisateurs existants ou les créer
+        List<User> users = userRepository.findAll();
+        
+        User adminUser, johnUser, janeUser, bobUser;
+        
+        if (users.isEmpty()) {
+            // Créer tous les utilisateurs
+            log.info("🔧 Aucun utilisateur trouvé, création des utilisateurs...");
+            adminUser = createUser("admin", "admin@company.com", User.Role.ADMIN);
+            johnUser = createUser("john_doe", "john@company.com", User.Role.USER);
+            janeUser = createUser("jane_smith", "jane@company.com", User.Role.USER);
+            bobUser = createUser("bob_wilson", "bob@company.com", User.Role.USER);
+        } else {
+            // Utiliser les utilisateurs existants et créer les manquants
+            adminUser = users.stream().filter(u -> u.getRole() == User.Role.ADMIN).findFirst().orElse(users.get(0));
+            
+            if (users.size() >= 2) {
+                johnUser = users.get(1);
+            } else {
+                log.info("🔧 Création de l'utilisateur john_doe...");
+                johnUser = createUser("john_doe", "john@company.com", User.Role.USER);
+            }
+            
+            if (users.size() >= 3) {
+                janeUser = users.get(2);
+            } else {
+                log.info("🔧 Création de l'utilisateur jane_smith...");
+                janeUser = createUser("jane_smith", "jane@company.com", User.Role.USER);
+            }
+            
+            if (users.size() >= 4) {
+                bobUser = users.get(3);
+            } else {
+                log.info("🔧 Création de l'utilisateur bob_wilson...");
+                bobUser = createUser("bob_wilson", "bob@company.com", User.Role.USER);
+            }
+        }
+
+        // Créer workspaces et boards si nécessaire
+        Workspace devWorkspace;
+        if (workspaceRepository.count() == 0) {
+            devWorkspace = createWorkspace("Développement", "Espace pour les projets de dev", adminUser.getId());
+        } else {
+            devWorkspace = workspaceRepository.findAll().get(0);
+        }
+
+        // Créer boards avec colonnes
+        Board sprintBoard;
+        if (boardRepository.count() == 0) {
+            sprintBoard = createBoardWithColumns("Sprint Planning", "Board pour la planification des sprints", devWorkspace.getId());
+        } else {
+            sprintBoard = boardRepository.findAll().get(0);
+        }
+
+        // Récupérer ou créer les colonnes
+        List<BoardColumn> sprintColumns = boardColumnRepository.findByBoardIdOrderByPosition(sprintBoard.getId());
+        if (sprintColumns.isEmpty()) {
+            createColumn(sprintBoard.getId(), "To Do", 0);
+            createColumn(sprintBoard.getId(), "In Progress", 1);
+            createColumn(sprintBoard.getId(), "Review", 2);
+            createColumn(sprintBoard.getId(), "Done", 3);
+            sprintColumns = boardColumnRepository.findByBoardIdOrderByPosition(sprintBoard.getId());
+        }
+
+        // Créer 5 tâches avec différentes priorités
+        if (sprintColumns.size() >= 4) {
+            createTask("🔐 Implementer l'authentification JWT", 
+                      "Ajouter un système d'authentification avec tokens JWT pour sécuriser l'API", 
+                      sprintColumns.get(0).getId(), adminUser.getId(), TaskEntity.Priority.HIGH, 0);
+                      
+            createTask("📊 Dashboard Analytics", 
+                      "Créer un dashboard avec des graphiques pour visualiser les métriques", 
+                      sprintColumns.get(0).getId(), johnUser.getId(), TaskEntity.Priority.MEDIUM, 1);
+                      
+            createTask("🎨 Améliorer l'UI/UX", 
+                      "Refactoriser l'interface utilisateur pour une meilleure expérience", 
+                      sprintColumns.get(1).getId(), janeUser.getId(), TaskEntity.Priority.LOW, 0);
+                      
+            createTask("🐛 Corriger le bug de performance", 
+                      "Optimiser les requêtes database qui causent des ralentissements", 
+                      sprintColumns.get(1).getId(), bobUser.getId(), TaskEntity.Priority.HIGH, 1);
+                      
+            createTask("📱 Version mobile responsive", 
+                      "Adapter l'application pour les appareils mobiles et tablettes", 
+                      sprintColumns.get(2).getId(), adminUser.getId(), TaskEntity.Priority.MEDIUM, 0);
+        }
+
+        log.info("✅ Tâches créées: {}", taskRepository.count());
+        log.info("🎉 Création des tâches terminée avec succès!");
+    }
+
     private User createUser(String username, String email, User.Role role) {
         User user = new User();
         user.setUsername(username);
         user.setEmail(email);
-        user.setPasswordHash("password123"); // Sera encodé par le service
+        user.setPasswordHash(passwordEncoder.encode("password123")); // Encoder le mot de passe
         user.setRole(role);
         return userRepository.save(user);
     }

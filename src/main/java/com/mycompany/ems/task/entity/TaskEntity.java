@@ -7,6 +7,7 @@ import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import java.time.LocalDateTime;
 import java.time.LocalDate;
@@ -54,19 +55,24 @@ public class TaskEntity {
     // Les liaisons (ici c'est les relations, lol)
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "column_id", insertable = false, updatable = false)
+    @JsonIgnore
     private BoardColumn column;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "assignee_id", insertable = false, updatable = false)
+    @JsonIgnore
     private User assignee;
 
     @OneToMany(mappedBy = "task", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JsonIgnore
     private List<TaskComment> comments;
 
     @OneToMany(mappedBy = "task", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JsonIgnore
     private List<TaskAttachment> attachments;
 
     @OneToMany(mappedBy = "task", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JsonIgnore
     private List<TaskLabelRelation> labelRelations;
 
     public enum Priority {
