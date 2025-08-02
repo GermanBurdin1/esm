@@ -242,20 +242,40 @@ html, body {
 .mat-mdc-dialog-container {
   border-radius: 12px !important;
   overflow: hidden;
+  box-shadow: 0 11px 15px -7px rgba(0,0,0,.2), 0 24px 38px 3px rgba(0,0,0,.14), 0 9px 46px 8px rgba(0,0,0,.12) !important;
+}
+
+.custom-dialog-container .mat-mdc-dialog-container {
+  border-radius: 16px !important;
+  padding: 0 !important;
+  margin: 24px;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  max-height: calc(100vh - 48px);
+}
+
+.custom-backdrop {
+  background-color: rgba(0, 0, 0, 0.6) !important;
 }
 
 .mat-mdc-dialog-title {
   font-weight: 500 !important;
   font-size: 1.25rem !important;
+  margin: 0 !important;
+  padding: 0 !important;
 }
 
 .mat-mdc-dialog-content {
-  padding-top: 16px !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  overflow: visible !important;
 }
 
 .mat-mdc-dialog-actions {
-  border-top: 1px solid #e0e0e0;
-  background-color: #fafafa;
+  padding: 0 !important;
+  margin: 0 !important;
+  min-height: auto !important;
 }
 
 /* Success Snackbar */

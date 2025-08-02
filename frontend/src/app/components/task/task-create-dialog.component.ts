@@ -158,8 +158,8 @@ import { User, BoardColumn, TaskPriority, CreateTaskRequest } from '../../simple
         </mat-form-field>
 
         <!-- Loading indicator for dropdowns -->
-        <div *ngIf="loading" class="loading-section">
-          <mat-spinner diameter="30"></mat-spinner>
+        <div *ngIf="loading" class="loading-section" role="status" aria-live="polite">
+          <mat-spinner diameter="30" aria-label="Chargement des données"></mat-spinner>
           <span>Chargement des données...</span>
         </div>
 
@@ -172,9 +172,10 @@ import { User, BoardColumn, TaskPriority, CreateTaskRequest } from '../../simple
         <button mat-raised-button 
                 color="primary" 
                 type="submit" 
-                [disabled]="taskForm.invalid || submitting">
-          <mat-icon *ngIf="!submitting">add_task</mat-icon>
-          <mat-spinner *ngIf="submitting" diameter="20"></mat-spinner>
+                [disabled]="taskForm.invalid || submitting"
+                [attr.aria-label]="submitting ? 'Création en cours' : 'Créer la tâche'">
+          <mat-icon *ngIf="!submitting" aria-hidden="true">add_task</mat-icon>
+          <mat-spinner *ngIf="submitting" diameter="20" aria-label="Création en cours"></mat-spinner>
           {{ submitting ? 'Création...' : 'Créer la tâche' }}
         </button>
       </mat-dialog-actions>
@@ -184,7 +185,8 @@ import { User, BoardColumn, TaskPriority, CreateTaskRequest } from '../../simple
     .dialog-content {
       width: 500px;
       max-width: 90vw;
-      padding: 20px 0;
+      padding: 20px 24px;
+      margin: 0;
     }
 
     .full-width {
@@ -246,16 +248,22 @@ import { User, BoardColumn, TaskPriority, CreateTaskRequest } from '../../simple
     }
 
     .dialog-actions {
-      padding: 16px 24px;
+      padding: 20px 24px 24px 24px;
       gap: 12px;
+      margin: 0;
+      border-top: 1px solid #e0e0e0;
+      background-color: #fafafa;
     }
 
     h2[mat-dialog-title] {
       display: flex;
       align-items: center;
       gap: 12px;
-      margin: 0 0 16px 0;
+      margin: 0 0 20px 0;
+      padding: 24px 24px 0 24px;
       color: #333;
+      font-size: 1.25rem;
+      font-weight: 500;
     }
 
     /* Custom scrollbar for dialog content */
@@ -338,14 +346,31 @@ export class TaskCreateDialogComponent implements OnInit {
         }
         
         this.loading = false;
+        
+        // Show warning if no data available
+        if (this.users.length === 0 && this.columns.length === 0) {
+          this.snackBar.open('Aucune donnée disponible. Vérifiez que le backend est démarré.', 'Fermer', {
+            duration: 5000,
+            panelClass: ['error-snackbar']
+          });
+        }
       },
       error: (error) => {
         console.error('Error loading form data:', error);
-        this.snackBar.open('Erreur lors du chargement des données', 'Fermer', {
-          duration: 3000,
+        // Set empty arrays to prevent template errors
+        this.users = [];
+        this.columns = [];
+        this.loading = false;
+        
+        let errorMessage = 'Erreur lors du chargement des données';
+        if (error.status === 0) {
+          errorMessage = 'Impossible de se connecter au serveur. Vérifiez que le backend est démarré sur localhost:8080.';
+        }
+        
+        this.snackBar.open(errorMessage, 'Fermer', {
+          duration: 5000,
           panelClass: ['error-snackbar']
         });
-        this.loading = false;
       }
     });
   }

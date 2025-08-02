@@ -484,14 +484,23 @@ export class TaskListComponent implements OnInit {
       users: this.userService.getAllUsers()
     }).subscribe({
       next: (data) => {
-        this.tasks = data.tasks;
-        this.users = data.users;
-        this.filteredTasks = data.tasks;
+        this.tasks = data.tasks || [];
+        this.users = data.users || [];
+        this.filteredTasks = data.tasks || [];
         this.loading = false;
       },
       error: (error) => {
         console.error('Error loading data:', error);
+        // Set empty arrays so UI doesn't break
+        this.tasks = [];
+        this.users = [];
+        this.filteredTasks = [];
         this.loading = false;
+        
+        // Show user-friendly message
+        if (error.status === 0) {
+          console.warn('Backend server is not running. Please start the backend on localhost:8080');
+        }
       }
     });
   }
@@ -540,10 +549,14 @@ export class TaskListComponent implements OnInit {
 
   createTask(): void {
     const dialogRef = this.dialog.open(TaskCreateDialogComponent, {
-      width: '600px',
+      width: '550px',
       maxWidth: '90vw',
+      maxHeight: '90vh',
       disableClose: false,
-      autoFocus: true
+      autoFocus: true,
+      panelClass: 'custom-dialog-container',
+      hasBackdrop: true,
+      backdropClass: 'custom-backdrop'
     });
 
     dialogRef.afterClosed().subscribe(result => {
