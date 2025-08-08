@@ -1,0 +1,92 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:15-alpine
+    container_name: ems-postgres
+    environment:
+      POSTGRES_DB: ems_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgre
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./init-db:/docker-entrypoint-initdb.d
+    networks:
+      - ems-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d ems_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  # Spring Boot Application
+  ems-app:
+    build: 
+      context: .
+      dockerfile: Dockerfile
+    container_name: ems-application
+    environment:
+      # Database configuration
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/ems_db
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: postgre
+      SPRING_PROFILES_ACTIVE: docker
+      
+      # JPA Configuration
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+      SPRING_JPA_SHOW_SQL: "true"
+      
+      # Flyway Configuration
+      SPRING_FLYWAY_SCHEMAS: hrm,task
+      SPRING_FLYWAY_BASELINE_ON_MIGRATE: "true"
+      
+      # Server Configuration
+      SERVER_PORT: 8080
+      
+      # Logging
+      LOGGING_LEVEL_COM_MYCOMPANY_EMS: DEBUG
+    ports:
+      - "8080:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - ems-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8080/api/public/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+
+  # Angular Frontend (optionnel)
+  ems-frontend:
+    image: nginx:alpine
+    container_name: ems-frontend
+    ports:
+      - "4200:80"
+    volumes:
+      - ./frontend/dist:/usr/share/nginx/html:ro
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - ems-app
+    networks:
+      - ems-network
+    restart: unless-stopped
+    profiles:
+      - frontend
+
+# Volumes persistants
+volumes:
+  postgres_data:
+    driver: local
+
+# Network pour communication inter-services
+networks:
+  ems-network:
+    driver: bridge
