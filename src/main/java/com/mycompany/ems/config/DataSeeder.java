@@ -20,7 +20,7 @@ import java.util.List;
 @Component
 @RequiredArgsConstructor
 @Slf4j
-@Profile("dev") // Active seulement avec spring.profiles.active=dev
+@Profile({"dev", "docker"}) // Active en dev local ET en docker
 public class DataSeeder implements CommandLineRunner {
 
     private final UserRepository userRepository;
