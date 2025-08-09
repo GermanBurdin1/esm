@@ -11,7 +11,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
-import { forkJoin } from 'rxjs';
+import { forkJoin, Observable } from 'rxjs';
 import { TaskService, UserService, BoardService } from '../../services';
 import { User, BoardColumn, TaskPriority, CreateTaskRequest } from '../../simple-models';
 
@@ -334,44 +334,67 @@ export class TaskCreateDialogComponent implements OnInit {
     }).subscribe({
       next: (data: any) => {
         this.users = data.users || [];
+        const boards = data.boards || [];
         
-        // Flatten all columns from all boards
-        this.columns = [];
-        if (data.boards && Array.isArray(data.boards)) {
-          data.boards.forEach((board: any) => {
-            if (board.columns && Array.isArray(board.columns)) {
-              this.columns.push(...board.columns);
-            }
-          });
-        }
-        
-        this.loading = false;
-        
-        // Show warning if no data available
-        if (this.users.length === 0 && this.columns.length === 0) {
-          this.snackBar.open('Aucune donnée disponible. Vérifiez que le backend est démarré.', 'Fermer', {
+        // Load columns for each board
+        if (boards.length > 0) {
+          const columnRequests: Observable<BoardColumn[]>[] = boards.map((board: any) => 
+            this.boardService.getColumnsByBoard(board.id)
+          );
+          
+          if (columnRequests.length > 0) {
+            forkJoin(columnRequests).subscribe({
+              next: (columnsArrays: BoardColumn[][]) => {
+                this.columns = columnsArrays.flat();
+                this.loading = false;
+                
+                // Show warning if no data available
+                if (this.users.length === 0 && this.columns.length === 0) {
+                  this.snackBar.open('Aucune donnée disponible. Vérifiez que le backend est démarré.', 'Fermer', {
+                    duration: 5000,
+                    panelClass: ['error-snackbar']
+                  });
+                }
+              },
+              error: (error) => {
+                console.error('Error loading columns:', error);
+                this.columns = [];
+                this.loading = false;
+                this.showErrorMessage(error);
+              }
+            });
+          } else {
+            this.columns = [];
+            this.loading = false;
+          }
+        } else {
+          this.columns = [];
+          this.loading = false;
+          this.snackBar.open('Aucun board trouvé. Créez d\'abord un board.', 'Fermer', {
             duration: 5000,
-            panelClass: ['error-snackbar']
+            panelClass: ['warning-snackbar']
           });
         }
       },
       error: (error) => {
         console.error('Error loading form data:', error);
-        // Set empty arrays to prevent template errors
         this.users = [];
         this.columns = [];
         this.loading = false;
-        
-        let errorMessage = 'Erreur lors du chargement des données';
-        if (error.status === 0) {
-          errorMessage = 'Impossible de se connecter au serveur. Vérifiez que le backend est démarré sur localhost:8080.';
-        }
-        
-        this.snackBar.open(errorMessage, 'Fermer', {
-          duration: 5000,
-          panelClass: ['error-snackbar']
-        });
+        this.showErrorMessage(error);
       }
+    });
+  }
+
+  private showErrorMessage(error: any): void {
+    let errorMessage = 'Erreur lors du chargement des données';
+    if (error.status === 0) {
+      errorMessage = 'Impossible de se connecter au serveur. Vérifiez que le backend est démarré sur localhost:8080.';
+    }
+    
+    this.snackBar.open(errorMessage, 'Fermer', {
+      duration: 5000,
+      panelClass: ['error-snackbar']
     });
   }
 
