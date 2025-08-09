@@ -104,3 +104,23 @@ mvn spring-boot:run
 # Créer le JAR
 mvn clean package
 ```
+
+## Lancement avec Docker Compose
+
+Cette application et la base de données PostgreSQL peuvent être lancées facilement avec Docker Compose.
+
+### Étapes
+
+1. Lancez les conteneurs (application + base de données) :
+   ```bash
+   docker compose up --build -d
+   ```
+
+- Les migrations Flyway créent automatiquement les schémas `hrm` et `task` et insèrent des données de test.
+- La documentation Swagger est accessible à : [http://localhost:8080/swagger-ui.html](http://localhost:8080/swagger-ui.html)
+- **Spring Security est désactivé** : aucune authentification n'est requise pour accéder à l'API ou à l'interface Swagger.
+
+Pour arrêter et supprimer les conteneurs :
+```bash
+docker compose down
+```
